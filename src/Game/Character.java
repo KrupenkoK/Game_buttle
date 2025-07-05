@@ -1,5 +1,9 @@
 package Game;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 public abstract class Character  {
     private int healthPoint ;
     private boolean protect;
@@ -42,9 +46,7 @@ public abstract class Character  {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public abstract void makeMove(Character opponent, List<? extends Character> allies);
 
 }
 
@@ -74,6 +76,10 @@ class ElfWarrior extends Character implements Hit {
         }
         System.out.println();
         return ch.getHealthPoint();
+    }
+
+    public void makeMove(Character opponent, List<? extends Character> allies) {
+        hit(opponent);
     }
 }
 
@@ -113,6 +119,28 @@ class ElfMag extends Character implements Buff, RangeHit {
         }
         System.out.println();
         return ch.getHealthPoint();
+    }
+
+    Random rd = new Random();
+
+    public void makeMove(Character opponent, List<? extends Character> allies) {
+        if (rd.nextBoolean()) {
+            List<Character> availableAllies = new ArrayList<>();
+            for (Character ch : allies) {
+                if (!ch.isProtect() && ch.getHealthPoint() > 0) {
+                    availableAllies.add(ch);
+                }
+            }
+
+            if (!availableAllies.isEmpty()) {
+                Character toBuff = availableAllies.get(rd.nextInt(availableAllies.size()));
+                buff(toBuff);
+            } else {
+                rangeHit(opponent);
+            }
+        } else {
+            rangeHit(opponent);
+        }
     }
 }
 
@@ -163,6 +191,15 @@ class ElfArcher extends Character implements RangeHit, Hit {
         System.out.println();
         return ch.getHealthPoint();
     }
+
+    Random rd = new Random();
+
+    public void makeMove(Character opponent, List<? extends Character> allies) {
+        if(rd.nextBoolean()){
+            hit(opponent);
+        } else {rangeHit(opponent);}
+    }
+
 }
 
 class HumanWarrior extends Character implements Hit {
@@ -180,17 +217,27 @@ class HumanWarrior extends Character implements Hit {
         } else if (!ch.isProtect() && !this.isWeakened()) {
             System.out.println(getName() + " наносит удар мечем 18 по " + ch.getName() + " - " + ch.getHealthPoint() + " жизней");
             ch.setHealthPoint(18);
-            if (ch.getHealthPoint() <= 0) { System.out.println(ch.getName() + " погиб!");}
-            else { System.out.println("У " + ch.getName() + " - " + ch.getHealthPoint() + " жизней");}
+            if (ch.getHealthPoint() <= 0) {
+                System.out.println(ch.getName() + " погиб!");
+            } else {
+                System.out.println("У " + ch.getName() + " - " + ch.getHealthPoint() + " жизней");
+            }
         } else if (!ch.isProtect() && this.isWeakened()) {
             System.out.println(getName() + " наносит удар мечем 9 по " + ch.getName() + " - " + ch.getHealthPoint() + " жизней");
             ch.setHealthPoint(9);
             this.setWeakened(false);
-            if (ch.getHealthPoint() <= 0) { System.out.println(ch.getName() + " погиб!");}
-            else { System.out.println("У " + ch.getName()+ " - " + ch.getHealthPoint() + " жизней");}
+            if (ch.getHealthPoint() <= 0) {
+                System.out.println(ch.getName() + " погиб!");
+            } else {
+                System.out.println("У " + ch.getName() + " - " + ch.getHealthPoint() + " жизней");
+            }
         }
         System.out.println();
         return ch.getHealthPoint();
+    }
+
+    public void makeMove(Character opponent, List<? extends Character> allies) {
+        hit(opponent);
     }
 }
 
@@ -241,6 +288,14 @@ class HumanArcher extends Character implements Hit, RangeHit {
         System.out.println();
         return ch.getHealthPoint();
     }
+
+    Random rd = new Random();
+
+    public void makeMove(Character opponent, List<? extends Character> allies) {
+        if(rd.nextBoolean()){
+            hit(opponent);
+        } else {rangeHit(opponent);}
+    }
 }
 
 class HumanMag extends Character implements Buff, Hit {
@@ -280,6 +335,28 @@ class HumanMag extends Character implements Buff, Hit {
         System.out.println();
         return ch.getHealthPoint();
     }
+
+    Random rd = new Random();
+
+    public void makeMove(Character opponent, List<? extends Character> allies) {
+        if (rd.nextBoolean()) {
+            List<Character> availableAllies = new ArrayList<>();
+            for (Character ch : allies) {
+                if (!ch.isProtect() && ch.getHealthPoint() > 0) {
+                    availableAllies.add(ch);
+                }
+            }
+
+            if (!availableAllies.isEmpty()) {
+                Character toBuff = availableAllies.get(rd.nextInt(availableAllies.size()));
+                buff(toBuff);
+            } else {
+                hit(opponent);
+            }
+        } else {
+            hit(opponent);
+        }
+    }
 }
 
 
@@ -296,17 +373,20 @@ class GoblinWarrior extends Character implements Hit {
             System.out.println(getName() + " наносит удар дубиной по " + ch.getName() + " но защита защищает");
             System.out.println("У " + ch.getName() + " - " + ch.getHealthPoint() + " жизней");
         } else if (!ch.isProtect()) {
-            System.out.println(getName()  + " наносит удар дубиной 20 по " + ch.getName() + " - " + ch.getHealthPoint() + " жизней");
+            System.out.println(getName() + " наносит удар дубиной 20 по " + ch.getName() + " - " + ch.getHealthPoint() + " жизней");
             ch.setHealthPoint(20);
             if (ch.getHealthPoint() <= 0) {
                 System.out.println(ch.getName() + " погиб!");
-            }
-            else {
+            } else {
                 System.out.println("У " + ch.getName() + " - " + ch.getHealthPoint() + " жизней");
             }
         }
         System.out.println();
         return ch.getHealthPoint();
+    }
+
+    public void makeMove(Character opponent, List<? extends Character> allies) {
+        hit(opponent);
     }
 }
 
@@ -333,6 +413,28 @@ class OrkShaman extends Character implements Buff, DeBuff {
         }
         System.out.println();
         return ch.isProtect();
+    }
+
+    Random rd = new Random();
+
+    public void makeMove(Character opponent, List<? extends Character> allies) {
+        if (rd.nextBoolean()) {
+            List<Character> availableAllies = new ArrayList<>();
+            for (Character ch : allies) {
+                if (!ch.isProtect() && ch.getHealthPoint() > 0) {
+                    availableAllies.add(ch);
+                }
+            }
+
+            if (!availableAllies.isEmpty()) {
+                Character toBuff = availableAllies.get(rd.nextInt(availableAllies.size()));
+                buff(toBuff);
+            } else {
+                deBuff(opponent);
+            }
+        } else {
+            deBuff(opponent);
+        }
     }
 }
 
@@ -372,6 +474,14 @@ class OrkArcher extends Character implements RangeHit, Hit {
         System.out.println();
         return ch.getHealthPoint();
     }
+
+    Random rd = new Random();
+
+    public void makeMove(Character opponent, List<? extends Character> allies) {
+        if(rd.nextBoolean()){
+            hit(opponent);
+        } else {rangeHit(opponent);}
+    }
 }
 
 
@@ -388,17 +498,20 @@ class Zombie extends Character implements Hit {
             System.out.println(getName() + " наносит удар копьем по " + ch.getName() + " но защита защищает");
             System.out.println("У " + ch.getName() + " - " + ch.getHealthPoint() + " жизней");
         } else if (!ch.isProtect()) {
-            System.out.println(getName()  + " наносит удар копьем 18 по " + ch.getName() + " - " + ch.getHealthPoint() + " жизней");
+            System.out.println(getName() + " наносит удар копьем 18 по " + ch.getName() + " - " + ch.getHealthPoint() + " жизней");
             ch.setHealthPoint(18);
             if (ch.getHealthPoint() <= 0) {
                 System.out.println(ch.getName() + " погиб!");
-            }
-            else {
+            } else {
                 System.out.println("У " + ch.getName() + " - " + ch.getHealthPoint() + " жизней");
             }
         }
         System.out.println();
         return ch.getHealthPoint();
+    }
+
+    public void makeMove(Character opponent, List<? extends Character> allies) {
+        hit(opponent);
     }
 }
 
@@ -437,6 +550,14 @@ class Hunter extends Character implements RangeHit, Hit {
         System.out.println();
         return ch.getHealthPoint();
     }
+
+    Random rd = new Random();
+
+    public void makeMove(Character opponent, List<? extends Character> allies) {
+        if(rd.nextBoolean()){
+            hit(opponent);
+        } else {rangeHit(opponent);}
+    }
 }
 
 class Necromant extends Character implements Hit, Ailments {
@@ -468,6 +589,15 @@ class Necromant extends Character implements Hit, Ailments {
         System.out.println();
         return ch.getHealthPoint();
     }
+
+    Random rd = new Random();
+
+    public void makeMove(Character opponent, List<? extends Character> allies) {
+        if(rd.nextBoolean()){
+            ailments(opponent);
+        } else {hit(opponent);}
+    }
+
 }
 
 
@@ -479,6 +609,6 @@ interface Ailments { boolean ailments(Character ch);}
 
 interface RangeHit {int rangeHit(Character ch);}
 
-interface Hit { int hit(Character ch);}
+interface Hit {int hit(Character ch);}
 
 
